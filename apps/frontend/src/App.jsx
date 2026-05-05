@@ -263,70 +263,66 @@ export default function App() {
               </div>
             </motion.div>
           ) : view === 'config' && selectedTool ? (
-            <motion.div key="config" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="glass-card">
-              <div className="category-header">
-                <button className="back-btn" onClick={() => setView('landing')}><ChevronLeft size={22} /></button>
-                <h2>{selectedTool.name}</h2>
-              </div>
-              
-              <div className="config-form">
-                {selectedTool.id !== 'qr-generate' && (
-                  <div className="form-group">
-                    <label>Source Asset</label>
-                    <div className="file-badge">{file?.name || 'No file selected'}</div>
+            <motion.div key="config" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="glass-card config-view-wide">
+              <div className="footer-style-card config-panel-horizontal">
+                {/* Left Col: Header & Asset */}
+                <div className="config-col-brand">
+                  <div className="config-header-group">
+                    <button className="back-btn-minimal-v2" onClick={() => setView('landing')}><ChevronLeft size={18} /></button>
+                    <div className="config-title-wrap">
+                      <h2>{selectedTool.name}</h2>
+                      <p>Asset Configuration</p>
+                    </div>
                   </div>
-                )}
-
-                <div className="config-inputs-grid">
-                  {selectedTool.needs?.includes('width') && (
-                    <div className="form-group">
-                      <label>Width (px)</label>
-                      <input 
-                        type="number" 
-                        value={config.width} 
-                        onChange={e => setConfig({...config, width: e.target.value})} 
-                        placeholder="800"
-                      />
-                    </div>
-                  )}
-                  {selectedTool.needs?.includes('height') && (
-                    <div className="form-group">
-                      <label>Height (px)</label>
-                      <input 
-                        type="number" 
-                        value={config.height} 
-                        onChange={e => setConfig({...config, height: e.target.value})} 
-                        placeholder="600"
-                      />
-                    </div>
-                  )}
-                  {selectedTool.needs?.includes('password') && (
-                    <div className="form-group">
-                      <label>Password</label>
-                      <input 
-                        type="password" 
-                        value={config.password} 
-                        onChange={e => setConfig({...config, password: e.target.value})} 
-                        placeholder="Set secure password..."
-                      />
-                    </div>
-                  )}
-                  {selectedTool.needs?.includes('text') && (
-                    <div className="form-group full-width">
-                      <label>Content / URL</label>
-                      <textarea 
-                        value={config.text} 
-                        onChange={e => setConfig({...config, text: e.target.value})} 
-                        placeholder="Enter text or URL for QR code..."
-                        rows={3}
-                      />
+                  {selectedTool.id !== 'qr-generate' && (
+                    <div className="asset-info-box">
+                      <label>Target Asset</label>
+                      <div className="file-badge-refined-v2">{file?.name || 'No asset'}</div>
                     </div>
                   )}
                 </div>
 
-                <button className="btn-primary-premium" onClick={() => startTask(selectedTool.id)}>
-                  <Zap size={18} /> Process Asset
-                </button>
+                {/* Middle Col: Settings */}
+                <div className="config-col-settings">
+                  <label className="col-label">PARAMETERS</label>
+                  <div className="config-inputs-flex">
+                    {selectedTool.needs?.includes('width') && (
+                      <div className="form-group-v2">
+                        <label>Width</label>
+                        <input type="number" value={config.width} onChange={e => setConfig({...config, width: e.target.value})} placeholder="800" />
+                      </div>
+                    )}
+                    {selectedTool.needs?.includes('height') && (
+                      <div className="form-group-v2">
+                        <label>Height</label>
+                        <input type="number" value={config.height} onChange={e => setConfig({...config, height: e.target.value})} placeholder="600" />
+                      </div>
+                    )}
+                    {selectedTool.needs?.includes('password') && (
+                      <div className="form-group-v2">
+                        <label>Asset Password</label>
+                        <input type="password" value={config.password} onChange={e => setConfig({...config, password: e.target.value})} placeholder="Secret..." />
+                      </div>
+                    )}
+                    {selectedTool.needs?.includes('text') && (
+                      <div className="form-group-v2 full-width">
+                        <label>Content / URL</label>
+                        <textarea value={config.text} onChange={e => setConfig({...config, text: e.target.value})} placeholder="Enter content..." rows={2} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right Col: Final Action */}
+                <div className="config-col-actions">
+                  <label className="col-label">EXECUTION</label>
+                  <div className="action-stack">
+                    <button className="btn-success-main-v2" onClick={() => startTask(selectedTool.id)}>
+                      <Zap size={16} /> Process Asset
+                    </button>
+                    <button className="btn-success-sub-v2" onClick={() => setView('landing')}>Cancel</button>
+                  </div>
+                </div>
               </div>
             </motion.div>
           ) : view === 'smart-detect' && file ? (
@@ -338,17 +334,25 @@ export default function App() {
               </div>
             </motion.div>
           ) : view === 'completed' && result ? (
-            <motion.div key="completed" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-card" style={{ textAlign: 'center' }}>
-              <div style={{ marginBottom: '2rem' }}>
-                <div style={{ background: 'var(--success)', width: '72px', height: '72px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
-                  <CheckCircle2 size={40} color="white" />
+            <motion.div key="completed" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass-card success-view">
+              <div className="success-card-inner">
+                <div className="success-icon-container">
+                  <CheckCircle2 size={48} color="#34C759" />
                 </div>
-                <h2>Success</h2>
-                <p>Your refined asset is ready.</p>
-              </div>
-              <div className="success-actions-grid">
-                <a href={`/api${result.download_url}`} className="btn-primary-premium" download>Download</a>
-                <button className="btn-primary-premium secondary" onClick={reset}>Back</button>
+                <div className="success-text">
+                  <h2>Task Accomplished</h2>
+                  <p>Your asset has been digitally refined and is ready.</p>
+                  <div className="file-badge success-file">{file?.name || 'result_file'}</div>
+                </div>
+                
+                <div className="success-card-actions">
+                  <a href={`/api${result.download_url}`} className="btn-success-main" download>
+                    <Download size={18} /> Download
+                  </a>
+                  <button className="btn-success-sub" onClick={reset}>
+                    New Task
+                  </button>
+                </div>
               </div>
             </motion.div>
           ) : null}

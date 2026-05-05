@@ -32,7 +32,12 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 ENV STORAGE_DIR=/app/storage
 ENV REDIS_URL=redis://localhost:6379/0
-ENV PYTHONPATH=/app/apps/backend
+ENV PYTHONPATH=/app
+ENV U2NET_HOME=/app/models
+
+# Pre-download rembg models
+RUN mkdir -p /app/models && \
+    python3 -c "from rembg import remove; import numpy as np; from PIL import Image; remove(np.zeros((10, 10, 3), dtype=np.uint8))"
 
 EXPOSE 10000
 
