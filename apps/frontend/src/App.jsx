@@ -167,6 +167,10 @@ export default function App() {
               <div className="island-nav"><RefreshCw size={14} className="spin" /><span>Processing {Math.round(progress)}%</span></div>
             ) : !isSearchExpanded ? (
               <div className="island-nav">
+                <a href="https://kaiwen.com.tr" className="island-item island-home-link" title="Back to Portfolio">
+                  <ChevronLeft size={16} />
+                </a>
+                <div className="island-divider" />
                 <div className={`island-item ${view === 'landing' ? 'active' : ''}`} onClick={reset}><LayoutGrid size={14} /><span>Home</span></div>
                 <div className="island-divider" />
                 <div className={`island-item ${view === 'smart-detect' ? 'active' : ''}`} onClick={() => { reset(); setView('smart-detect'); fileInputRef.current.multiple = false; fileInputRef.current.accept = "*/*"; fileInputRef.current.click(); }}><Sparkles size={14} /><span>Smart</span></div>
@@ -199,7 +203,7 @@ export default function App() {
             <motion.div key="landing" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="glass-card">
               <div className="hero-section">
                 <span className="hero-tag">Kaivertion v2.0</span>
-                <h1>Transform.</h1>
+                <img src="/kaivertion.jpg" alt="Kaivertion Logo" className="hero-logo-img" />
                 <p>Private digital alchemy for your assets. Precise, secure, and instant transformations in a cloudless environment.</p>
               </div>
 
@@ -227,10 +231,69 @@ export default function App() {
             </motion.div>
           ) : view === 'config' && selectedTool ? (
             <motion.div key="config" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="glass-card">
-              <div className="category-header"><button className="back-btn" onClick={() => setView('landing')}><ChevronLeft size={22} /></button><h2>{selectedTool.name}</h2></div>
+              <div className="category-header">
+                <button className="back-btn" onClick={() => setView('landing')}><ChevronLeft size={22} /></button>
+                <h2>{selectedTool.name}</h2>
+              </div>
+              
               <div className="config-form">
-                {selectedTool.id !== 'qr-generate' && <div className="file-preview-section"><label>Source File</label><div className="file-badge">{file?.name || 'No file selected'}</div></div>}
-                <button className="btn-primary-premium" onClick={() => startTask(selectedTool.id)}><Zap size={18} /> Process Asset</button>
+                {selectedTool.id !== 'qr-generate' && (
+                  <div className="form-group">
+                    <label>Source Asset</label>
+                    <div className="file-badge">{file?.name || 'No file selected'}</div>
+                  </div>
+                )}
+
+                <div className="config-inputs-grid">
+                  {selectedTool.needs?.includes('width') && (
+                    <div className="form-group">
+                      <label>Width (px)</label>
+                      <input 
+                        type="number" 
+                        value={config.width} 
+                        onChange={e => setConfig({...config, width: e.target.value})} 
+                        placeholder="800"
+                      />
+                    </div>
+                  )}
+                  {selectedTool.needs?.includes('height') && (
+                    <div className="form-group">
+                      <label>Height (px)</label>
+                      <input 
+                        type="number" 
+                        value={config.height} 
+                        onChange={e => setConfig({...config, height: e.target.value})} 
+                        placeholder="600"
+                      />
+                    </div>
+                  )}
+                  {selectedTool.needs?.includes('password') && (
+                    <div className="form-group">
+                      <label>Password</label>
+                      <input 
+                        type="password" 
+                        value={config.password} 
+                        onChange={e => setConfig({...config, password: e.target.value})} 
+                        placeholder="Set secure password..."
+                      />
+                    </div>
+                  )}
+                  {selectedTool.needs?.includes('text') && (
+                    <div className="form-group full-width">
+                      <label>Content / URL</label>
+                      <textarea 
+                        value={config.text} 
+                        onChange={e => setConfig({...config, text: e.target.value})} 
+                        placeholder="Enter text or URL for QR code..."
+                        rows={3}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <button className="btn-primary-premium" onClick={() => startTask(selectedTool.id)}>
+                  <Zap size={18} /> Process Asset
+                </button>
               </div>
             </motion.div>
           ) : view === 'smart-detect' && file ? (
