@@ -20,14 +20,12 @@ RUN npm install && npm run build
 
 # 2. Setup Backend
 WORKDIR /app
-COPY apps/backend ./apps/backend
-WORKDIR /app/apps/backend
-COPY docker/backend/requirements.txt ./requirements.txt
+COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir gunicorn uvicorn supervisor redis celery rembg pdf2docx pypdf qrcode cairosvg
+
+COPY apps/backend ./apps/backend
 
 # 3. Finalize
-WORKDIR /app
 RUN mkdir -p /app/storage /app/logs /app/static
 RUN cp -r /app/apps/frontend/dist/* /app/static/
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
