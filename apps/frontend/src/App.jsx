@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import {
   FileText, Image as ImageIcon, Download, RefreshCw,
   CheckCircle2, Sparkles, X, Search, Zap, LayoutGrid, ChevronLeft,
@@ -69,8 +69,18 @@ export default function App() {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [isHomeHovered, setIsHomeHovered] = useState(false);
+  const [showIslandLogo, setShowIslandLogo] = useState(false);
 
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowIslandLogo(window.scrollY > 150);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const reset = () => {
     setView('landing'); setFile(null); setFiles([]); setSelectedTool(null);
@@ -169,9 +179,26 @@ export default function App() {
               <div className="island-nav">
                 <a href="https://kaiwen.com.tr" className="island-item island-home-link" title="Back to Portfolio">
                   <ChevronLeft size={16} />
+                  <AnimatePresence>
+                    {showIslandLogo && (
+                      <motion.img 
+                        initial={{ opacity: 0, scale: 0, width: 0 }} 
+                        animate={{ opacity: 1, scale: 1, width: 24 }} 
+                        exit={{ opacity: 0, scale: 0, width: 0 }}
+                        src="/kaivertion.jpg" 
+                        className="island-logo-tiny" 
+                      />
+                    )}
+                  </AnimatePresence>
                 </a>
                 <div className="island-divider" />
-                <div className={`island-item ${view === 'landing' ? 'active' : ''}`} onClick={reset}><LayoutGrid size={14} /><span>Home</span></div>
+                <div 
+                  className={`island-item ${view === 'landing' ? 'active' : ''}`} 
+                  onClick={reset}
+                >
+                  <LayoutGrid size={14} />
+                  <span>Home</span>
+                </div>
                 <div className="island-divider" />
                 <div className={`island-item ${view === 'smart-detect' ? 'active' : ''}`} onClick={() => { reset(); setView('smart-detect'); fileInputRef.current.multiple = false; fileInputRef.current.accept = "*/*"; fileInputRef.current.click(); }}><Sparkles size={14} /><span>Smart</span></div>
                 <div className="island-divider" />
@@ -203,7 +230,13 @@ export default function App() {
             <motion.div key="landing" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="glass-card">
               <div className="hero-section">
                 <span className="hero-tag">Kaivertion v2.0</span>
-                <img src="/kaivertion.jpg" alt="Kaivertion Logo" className="hero-logo-img" />
+                <motion.img 
+                  src="/kaivertion.jpg" 
+                  alt="Kaivertion Logo" 
+                  className="hero-logo-img" 
+                  animate={{ opacity: showIslandLogo ? 0 : 1, scale: showIslandLogo ? 0.8 : 1 }}
+                  transition={{ duration: 0.3 }}
+                />
                 <p>Private digital alchemy for your assets. Precise, secure, and instant transformations in a cloudless environment.</p>
               </div>
 
