@@ -1,0 +1,63 @@
+services:
+  api:
+    build:
+      context: ../apps/backend
+      dockerfile: Dockerfile
+    container_name: converter-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../apps/backend:/app
+      - converter-storage:/app/storage
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - STIRLING_PDF_URL=http://stirling-pdf:8080
+    depends_on:
+      - redis
+      - stirling-pdf
+    networks:
+      - converter-network
+
+  worker:
+    build:
+      context: ../apps/backend
+      dockerfile: Dockerfile
+    container_name: converter-worker
+    command: celery -A tasks.celery_app worker --loglevel=info
+    volumes:
+      - ../apps/backend:/app
+      - converter-storage:/app/storage
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - STIRLING_PDF_URL=http://stirling-pdf:8080
+    depends_on:
+      - redis
+      - stirling-pdf
+    networks:
+      - converter-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: converter-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - converter-network
+
+  stirling-pdf:
+    image: stirlingtools/stirling-pdf:latest
+    container_name: converter-pdf-engine
+    ports:
+      - "8080:8080"
+    environment:
+      - DOCKER_ENABLE_SECURITY=false
+      - SECURITY_ENABLE_LOGIN=false
+    networks:
+      - converter-network
+
+volumes:
+  converter-storage:
+
+networks:
+  converter-network:
+    driver: bridge
