@@ -173,9 +173,10 @@ body {
 /* Category Grid */
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-bottom: 3rem;
+  width: 100%;
 }
 
 .category-card {
@@ -376,8 +377,21 @@ body {
 /* Tool Cards */
 .tool-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.25rem;
+  width: 100%;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 32px;
+  padding: 3rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  width: 100%;
+  margin-bottom: 2rem;
 }
 
 .tool-grid-compact {
@@ -933,89 +947,115 @@ body {
   cursor: pointer;
 }
 
-@media (max-width: 900px) {
-  .config-panel-horizontal { grid-template-columns: 1fr; gap: 2rem; }
-  .config-col-settings { padding: 2rem 0; border: none; border-top: 1px solid rgba(0,0,0,0.05); border-bottom: 1px solid rgba(0,0,0,0.05); }
-}
+@media (max-width: 768px) {
+  .app-shell {
+    padding-bottom: 100px;
+  }
 
-.file-preview-section {
-    display: flex;
-    flex-direction: column;
+  .island-container {
+    top: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .dynamic-island {
+    padding: 10px 16px;
+    min-width: auto;
+    width: 90vw;
+  }
+
+  .island-nav {
     gap: 12px;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+  }
+
+  .hero-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-logo-img {
+    width: 64px;
+    height: 64px;
+    margin: 1rem auto;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
+    padding: 0 10px;
+  }
+
+  .category-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .category-card {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .cat-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .cat-info h3 {
+    font-size: 1rem;
+  }
+
+  .tool-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .tool-card-premium {
+    padding: 1.25rem;
+  }
+
+  .glass-card {
+    padding: 2rem 1.25rem;
+    border-radius: 24px;
+  }
+
+  .features-badges {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .feature-item {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+
+  .site-footer {
+    padding: 2rem 1.5rem;
+    border-radius: 24px;
+  }
+
+  .footer-main {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .footer-brand {
+    justify-content: center;
+  }
+
+  .footer-links {
+    align-items: center;
+  }
 }
 
-/* Island Error */
-.dynamic-island.error-state {
-  background: var(--error);
-  width: 350px;
-  border-radius: 24px;
-}
+@media (max-width: 480px) {
+  .island-nav span {
+    display: none; /* Icon only on very small screens */
+  }
+  
+  .dynamic-island {
+    width: auto;
+    max-width: 95vw;
+  }
 
-.island-error-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  font-weight: 700;
-}
-
-.island-error-body {
-  color: rgba(255,255,255,0.9);
-  font-size: 0.85rem;
-  line-height: 1.4;
-  word-break: break-word;
-}
-
-.spin { animation: spin 1s linear infinite; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-@media (max-width: 850px) {
-    .site-footer {
-        padding: 2.5rem 1.5rem;
-        margin-top: 2rem;
-    }
-    .footer-main {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 2.5rem;
-    }
-    .footer-brand {
-        justify-content: center;
-    }
-    .footer-links {
-        align-items: center;
-    }
-    .footer-link:hover {
-        transform: translateY(-2px);
-    }
-    .footer-bottom {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-
-    /* Config View Mobile Fix */
-    .footer-style-card {
-        padding: 2rem 1.25rem;
-    }
-    .config-col-brand {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-    .config-header-group {
-        width: 100%;
-    }
-    .config-inputs-flex {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    .config-title-wrap h2 {
-        font-size: 1.2rem;
-    }
-    .col-label {
-        margin-bottom: 0.75rem;
-    }
+  .island-search-full {
+    width: 70vw;
+  }
 }
