@@ -13,3 +13,7 @@ qrcode==7.4.2
 CairoSVG==2.7.1
 python-pptx==0.6.21
 openpyxl==3.1.2
+pdf2docx
+pypdf
+pdfplumber
+pandas

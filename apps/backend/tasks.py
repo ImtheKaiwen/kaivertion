@@ -10,8 +10,12 @@ STORAGE_DIR = os.getenv("STORAGE_DIR", "/app/storage")
 
 celery_app = Celery("tasks", broker=REDIS_URL, backend=REDIS_URL)
 
+# Global session to avoid reloading model on every request
+REMBG_SESSION = None
+
 @celery_app.task(name="process_file_task")
 def process_file_task(file_path: str, task_id: str, operation: str, **kwargs):
+    global REMBG_SESSION
     print(f"--- LOCAL ALCHEMY: {operation} ---")
     try:
         if not file_path and operation != "qr-generate":
@@ -25,21 +29,37 @@ def process_file_task(file_path: str, task_id: str, operation: str, **kwargs):
             if "to-jpg" in operation: target_ext = ".jpg"
             elif "to-webp" in operation: target_ext = ".webp"
             elif "to-pdf" in operation: target_ext = ".pdf"
+            
             out_name = f"result_{task_id}{target_ext}"
             out_path = os.path.join(STORAGE_DIR, task_id, out_name)
             os.makedirs(os.path.dirname(out_path), exist_ok=True)
+
             if "resize" in operation or operation == "img-resize":
+                print(f"[{task_id}] Resizing image...")
                 w, h = int(kwargs.get("width", 800)), int(kwargs.get("height", 600))
                 img = img.resize((w, h), PILImage.Resampling.LANCZOS)
+
             if "remove-bg" in operation:
-                from rembg import remove
+                print(f"[{task_id}] Starting AI Background Removal...")
+                from rembg import remove, new_session
+                
+                if REMBG_SESSION is None:
+                    print(f"[{task_id}] Loading AI Model into memory (first run)...")
+                    REMBG_SESSION = new_session("u2net")
+                
                 with open(file_path, "rb") as i:
-                    out_data = remove(i.read())
+                    input_data = i.read()
+                    print(f"[{task_id}] Model processing (this may take a while on Render)...")
+                    out_data = remove(input_data, session=REMBG_SESSION)
                 with open(out_path, "wb") as o:
                     o.write(out_data)
+                print(f"[{task_id}] AI Removal complete.")
             else:
-                if target_ext in [".jpg", ".pdf"] and img.mode in ("RGBA", "P"): img = img.convert("RGB")
+                if target_ext in [".jpg", ".pdf"] and img.mode in ("RGBA", "P"): 
+                    img = img.convert("RGB")
                 img.save(out_path)
+                print(f"[{task_id}] Image save complete: {out_name}")
+            
             return {"download_url": f"/download/{task_id}/{out_name}"}
 
         # --- PDF OPS ---
@@ -54,10 +74,34 @@ def process_file_task(file_path: str, task_id: str, operation: str, **kwargs):
             return {"download_url": f"/download/{task_id}/{out_name}"}
 
         elif operation == "pdf-to-excel":
-            out_dir = os.path.join(STORAGE_DIR, task_id)
-            os.makedirs(out_dir, exist_ok=True)
-            subprocess.run(["soffice", "--headless", "--convert-to", "xlsx", "--outdir", out_dir, file_path], check=True)
-            out_name = os.path.splitext(os.path.basename(file_path))[0] + ".xlsx"
+            import pdfplumber
+            import pandas as pd
+            out_name = f"result_{task_id}.xlsx"
+            out_path = os.path.join(STORAGE_DIR, task_id, out_name)
+            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+            
+            all_dfs = []
+            with pdfplumber.open(file_path) as pdf:
+                for page in pdf.pages:
+                    tables = page.extract_tables()
+                    for table in tables:
+                        if table:
+                            # Use the first row as columns if possible
+                            if len(table) > 1:
+                                # Ensure columns are string and unique to avoid pandas ValueError
+                                columns = [str(c) if c else f"Col{i}" for i, c in enumerate(table[0])]
+                                df = pd.DataFrame(table[1:], columns=columns)
+                            else:
+                                df = pd.DataFrame(table)
+                            all_dfs.append(df)
+            
+            if not all_dfs:
+                return {"error": "No tabular data found in PDF to convert to Excel"}
+                
+            with pd.ExcelWriter(out_path) as writer:
+                for i, df in enumerate(all_dfs):
+                    df.to_excel(writer, sheet_name=f'Table_{i+1}', index=False)
+                    
             return {"download_url": f"/download/{task_id}/{out_name}"}
 
         elif operation == "pdf-protect":
